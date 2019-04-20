@@ -66,7 +66,7 @@ var vm = new Vue({
             }
             // 检查重名
             if (this.error_name == false) {
-                var url = this.host + '/usernames/' + this.username + '/count/';
+                var url = this.host + '/users/usernames/' + this.username + '/count/';
                 axios.get(url, {
                     responseType: 'json'
                 })

@@ -1,8 +1,11 @@
 from django.shortcuts import render,redirect
 from django.views.generic import View
 from users.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden,JsonResponse
 import re
+from django.urls import reverse
+from django.contrib.auth import login
+
 
 # Create your views here.
 class RegisterView(View):
@@ -38,9 +41,25 @@ class RegisterView(View):
             return HttpResponseForbidden('请勾选用户协议')
         # 保存注册数据
         try:
-            User.objects.create_user(username=username, password=password, mobile=mobile)
-        except DatabaseError:
+            user = User.objects.create_user(username=username, password=password, mobile=mobile)
+        # except DatabaseError:
+        except Exception as rest:
+            print(rest)
             return render(request, 'register.html', {'register_errmsg': '注册失败'})
+        # 登录用户状态保持
+        login(request, user)
 
         # 响应注册结果
-        return HttpResponse('注册成功，重定向到首页')
+        return redirect(reverse("contents:index"))
+
+
+class UsernameCountView(View):
+    """判断用户名是否重复注册"""
+    def get(self, request, username):
+        """
+        :param request: 请求对象
+        :param username: 用户名
+        :return: JSON
+        """
+        count = User.objects.filter(username=username).count()
+        return JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'count': count})
