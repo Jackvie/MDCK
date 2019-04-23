@@ -7,6 +7,7 @@ from users.models import User
 from meiduo.utils.response_code import RETCODE
 import re
 from django.db import DatabaseError
+from django_redis import get_redis_connection
 
 
 
@@ -24,9 +25,10 @@ class RegisterView(View):
         password = request.POST.get('password')
         password2 = request.POST.get('password2')
         mobile = request.POST.get('mobile')
+        sms_code_client = request.POST.get('sms_code')
         allow = request.POST.get('allow')
         # 判断参数是否齐全
-        if not all([username, password, password2, mobile, allow]):
+        if not all([username, password, password2, mobile, allow, sms_code_client]):
             return http.HttpResponseForbidden('缺少必传参数')
         # 判断用户名是否是5-20个字符
         if not re.match(r'^[a-zA-Z0-9_-]{5,20}$', username):
@@ -43,6 +45,16 @@ class RegisterView(View):
         # 判断是否勾选用户协议
         if allow != 'on':
             return http.HttpResponseForbidden('请勾选用户协议')
+        
+        # 对比短信验证码
+        redis_conn = get_redis_connection("verify_code")
+        sms_code_server = redis_conn.get("sms_%s" % mobile)
+
+        if sms_code_server is None:
+            return render(request, 'register.html', {'sms_code_errmsg':'无效的短信验证码'})
+        if sms_code_server.decode("utf-8") != sms_code_client:
+            return render(request, 'register.html', {'sms_code_errmsg': '输入短信验证码有误'})
+
         try:
             user = User.objects.create_user(username=username, password=password, mobile=mobile)
         except DatabaseError:
