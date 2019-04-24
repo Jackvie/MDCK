@@ -53,11 +53,18 @@ class SMSCodeView(View):
 
         # 完成图片验证码校验成功，可以发送短信
 
+        send_flag = redis_conn.get("send_flag_%s" % mobile)
+        if send_flag:
+            return http.JsonResponse({'code': RETCODE.THROTTLINGERR, 'errmsg': '发送短信过于频繁'})
+
         # 生成短信验证码：生成6位数验证码
         sms_code = "%06d" % random.randint(0,999999)
 
         # 保存短信验证码
         redis_conn.setex("sms_%s" % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
+
+        # 重新写入send_flag
+        redis_conn.setex('send_flag_%s' % mobile, constants.SEND_SMS_CODE_INTERVAL, 1)
 
         # 调用函数发送函数
         CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES], constants.SEND_SMS_TEMPLATE_ID)
