@@ -7,6 +7,7 @@ from django.http import HttpResponse,JsonResponse
 from jd.utils.response_code import RETCODE
 import re,logging,random
 from jd.libs.yuntongxun.sms import CCP
+from celery_tasks.sms.task import ccp_send_sms_code
 
 logger = logging.getLogger("django")
 
@@ -58,12 +59,14 @@ class SMSCodeView(View):
 
         # 短信验证码存于２号库
         sms_code = random.randint(0, 999999)
+        print(sms_code)
         p = redis_conn.pipeline()
         p.setex("sms_%s" % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
         p.setex("send_flag_%s" % mobile, constants.SEND_SMS_CODE_INTERVAL, 1)
         p.execute()
         # 发送
-        CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES], constants.SEND_SMS_TEMPLATE_ID)
+        # CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES], constants.SEND_SMS_TEMPLATE_ID)
+        ccp_send_sms_code.delay(mobile, sms_code)
 
         return JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
 

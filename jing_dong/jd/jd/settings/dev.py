@@ -26,7 +26,7 @@ SECRET_KEY = '-ym+#@_iy)-zs!cf&v8b)l2f%b!qx)pz-9^f^8qfj49d4p9mf7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["www.meiduo.site"]
 
 
 # Application definition
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'users',
     'contents',
     'verifications',
+    'oauth',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ DATABASES = {
         'NAME': 'jd' # 数据库名字
     },
 }
-
+# 应用名.模型类
 AUTH_USER_MODEL = "users.User"
 
 # Password validation
@@ -123,6 +124,16 @@ USE_L10N = True
 
 USE_TZ = True
 
+# 当用户未通过登录验证时，将用户重定向到登录页面
+# from django.urls import reverse
+# LOGIN_URL = reverse("users:login")
+LOGIN_URL = "/users/login/"
+
+# QQ登录配置
+QQ_CLIENT_ID = '101518219'
+QQ_CLIENT_SECRET = '418d84ebdc7241efb79536886ae95224'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8000/oauth_callback'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -155,6 +166,10 @@ CACHES = {
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
+
+AUTHENTICATION_BACKENDS = ["users.utils.UsernameMobileAuthBackend"]
+
+LOGIN_URL = '/users/login/'
 
 LOGGING = {
     'version': 1,

@@ -1,6 +1,12 @@
 from celery import Celery
 
-app = Celery(__name__)
+import os
+
+
+# 告诉celery去那里加载Django配置文件
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jd.settings.dev")
+
+app = Celery("kkk")
 
 app.config_from_object("celery_tasks.conf")
 
