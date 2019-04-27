@@ -47,7 +47,7 @@ var vm = new Vue({
             this.check_email();
 
             if (this.error_email == false) {
-                var url = this.host + '/emails/';
+                var url = this.host + '/users/emails/';
                 axios.put(url, {
                         email: this.email
                     }, {
@@ -62,7 +62,7 @@ var vm = new Vue({
                             this.send_email_btn_disabled = true;
                             this.send_email_tip = '已发送验证邮件';
                         } else if (response.data.code == '4101') {
-                            location.href = '/login/?next=/info/';
+                            location.href = '/users/login/?next=/info/';
                         } else { // 5000 5001
                             this.error_email_message = response.data.errmsg;
                             this.error_email = true;

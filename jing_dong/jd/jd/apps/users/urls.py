@@ -7,6 +7,8 @@ urlpatterns = [
     url(r"^mobiles/(?P<mobile>1[345789]\d{9})/count", views.MobileCountView.as_view(), name="mobilecount"),
     url(r"^login/$", views.LoginView.as_view(), name="login"),
     url(r"^logout/$", views.LogoutView.as_view(), name="logout"),
-    url(r"^info/$", views.UserInfoView.as_view(), name="info")
-
+    url(r"^info/$", views.UserInfoView.as_view(), name="info"),
+    url(r"^emails/$", views.EmailView.as_view(), name="emails"),
+    url(r"^active_email/$", views.VerifyEmailView.as_view(), name="active_email"),
+    url(r"^addresses/$", views.AddressView.as_view(), name="addresses"),
 ]

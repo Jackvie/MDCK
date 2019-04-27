@@ -22,5 +22,7 @@ urlpatterns = [
     url(r"^contents/", include("contents.urls", namespace="contents")),
     url(r"^verifications/", include("verifications.urls", namespace="verifications")),
     url(r"^oauth/", include("oauth.urls", namespace="oauth")),
+    url(r"area/", include("areas.urls", namespace="area")),
     url(r"^", include("oauth.urls", namespace="oauth_callback")),
+
 ]

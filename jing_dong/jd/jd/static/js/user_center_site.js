@@ -43,12 +43,13 @@ var vm = new Vue({
         // 监听到省份id变化
         'form_address.province_id': function () {
             if (this.form_address.province_id) {
-                var url = this.host + '/areas/?area_id=' + this.form_address.province_id;
+                var url = this.host + '/area/areas/?area_id=' + this.form_address.province_id;
                 axios.get(url, {
                     responseType: 'json'
                 })
                     .then(response => {
                         if (response.data.code == '0') {
+                            this.districts = []
                             this.cities = response.data.sub_data.subs;
                         } else {
                             console.log(response.data);
@@ -64,7 +65,7 @@ var vm = new Vue({
         // 监听到城市id变化
         'form_address.city_id': function () {
             if (this.form_address.city_id) {
-                var url = this.host + '/areas/?area_id=' + this.form_address.city_id;
+                var url = this.host + '/area/areas/?area_id=' + this.form_address.city_id;
                 axios.get(url, {
                     responseType: 'json'
                 })
@@ -86,7 +87,7 @@ var vm = new Vue({
     methods: {
         // 获取省份数据
         get_provinces() {
-            var url = this.host + '/areas/';
+            var url = this.host + '/area/areas/';
             axios.get(url, {
                 responseType: 'json'
             })
@@ -198,7 +199,7 @@ var vm = new Vue({
                 // 注意：0 == '';返回true; 0 === '';返回false;
                 if (this.editing_address_index === '') {
                     // 新增地址
-                    var url = this.host + '/addresses/create/';
+                    var url = this.host + '/area/addresses/create/';
                     axios.post(url, this.form_address, {
                         headers: {
                             'X-CSRFToken': getCookie('csrftoken')

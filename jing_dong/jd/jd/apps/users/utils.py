@@ -16,12 +16,9 @@ def get_user_by_count(account):
         return user
 
 
-
-
 class UsernameMobileAuthBackend(ModelBackend):
     """自定义认证类"""
     def authenticate(self, request, username=None, password=None, **kwargs):
         user = get_user_by_count(username)
         if user and user.check_password(password):
             return user
-

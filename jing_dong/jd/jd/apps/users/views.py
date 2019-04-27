@@ -1,16 +1,19 @@
 from django.shortcuts import render,redirect
 from django.views.generic import View
 from django.http import *
-import re
+from django.conf import settings
+import re, json, logging
 from .models import User
 from django.db import DatabaseError
 from django.contrib.auth import login, authenticate, logout
 from django.urls import reverse
+from jd.utils.view import LoginRequiredJSONMixin,LoginRequiredMixin,generate_verify_email_url,check_verify_email_token
 from jd.utils.response_code import RETCODE
 from django_redis import get_redis_connection
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from celery_tasks.email.tasks import send_verify_email
+# from django.contrib.auth.decorators import login_required
 from django.contrib.auth import mixins
+logger = logging.getLogger("django")
 # Create your views here.
 
 class RegisterView(View):
@@ -149,7 +152,77 @@ class UserInfoView(mixins.LoginRequiredMixin, View):
 
     def get(self, request):
         """提供个人信息界面"""
-        return render(request, 'user_center_info.html')
+        user = request.user
+        context = {
+            "username": user.username,
+            "mobile": user.mobile,
+            'email': request.user.email,
+            "email_active": user.email_active,
+
+        }
+
+        return render(request, 'user_center_info.html', context)
+
+
+class EmailView(LoginRequiredJSONMixin, View):
+    """添加邮箱并发送链接验证"""
+    def put(self, request):
+        """实现添加邮箱逻辑"""
+        json_dict = json.loads(request.body.decode())
+        email = json_dict.get("email")
+
+        if not email:
+            return HttpResponseForbidden("缺少邮箱参数")
+
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return HttpResponseForbidden('参数email有误')
+
+        try:
+            request.user.email = email
+            request.user.save()
+
+        except Exception as ret:
+            logger.error(ret)
+            return JsonResponse({"code":RETCODE.DBERR, "errmsg":"添加邮箱失败"})
+
+        # 获取加密后的data: {user_id, email}
+        token = generate_verify_email_url(request.user)
+
+        verify_url = settings.EMAIL_VERIFY_URL + "?token=%s" % token
+        send_verify_email.delay(email, verify_url)
+
+        return JsonResponse({"code":RETCODE.OK, "errmsg":"添加邮箱成功"})
+
+
+class VerifyEmailView(View):
+    """验证邮箱"""
+
+    def get(self, request):
+        """实现邮箱验证逻辑"""
+        token = request.GET.get("token")
+        if not token:
+            return HttpResponseBadRequest("缺少token参数")
+        user = check_verify_email_token(token)
+        if not user:
+            return HttpResponseForbidden("无效的token")
+
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            logger.error(e)
+            return HttpResponseServerError('激活邮件失败')
+
+        return redirect(reverse("users:info"))
+
+
+class AddressView(mixins.LoginRequiredMixin, View):
+    """用户收货地址"""
+
+    def get(self, request):
+        """提供收货地址界面"""
+        return render(request, 'user_center_site.html')
+
 
 
 
