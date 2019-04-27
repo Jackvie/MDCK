@@ -21,6 +21,7 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+
 class Address(BaseModel):
     """用户地址模型类"""
     # from users.models import User
@@ -46,5 +47,7 @@ class Address(BaseModel):
         verbose_name = '用户地址'
         verbose_name_plural = verbose_name
         ordering = ['-update_time']
+
+
 
 
