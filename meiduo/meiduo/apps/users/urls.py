@@ -19,4 +19,16 @@ urlpatterns = [
     url(r'^emails/$', views.EmailView.as_view(), name="emails"),
     # 激活邮箱
     url(r'^emails/verification/$', views.VerifyEmailView.as_view()),
+    # 用户收货地址
+    url(r'^addresses/$', views.AddressView.as_view(), name='address'),
+    # 新增收货地址
+    url(r'^addresses/create/$', views.CreateAddressView.as_view()),
+    # 收货地址修改和删除
+    url(r'^addresses/(?P<address_id>\d+)/$', views.UpdateDestroyAddressView.as_view()),
+    # 设置用户默认收货地址
+    url(r'^addresses/(?P<address_id>\d+)/default/$', views.DefaultAddressView.as_view()),
+    # 修改地址标题
+    url(r'^addresses/(?P<address_id>\d+)/title/$', views.UpdateTitleAddressView.as_view()),
+    # 修改密码
+    url(r'^password/$', views.ChangePasswordView.as_view()),
 ]

@@ -58,8 +58,8 @@ class QQAuthUserView(View):
             oauth_user = OAuthQQUser.objects.get(openid=openid)
         except OAuthQQUser.DoesNotExist:
             # 如果openid没绑定美多商城用户
-            access_token = generate_eccess_token(openid)
-            context = {'access_token': access_token}
+            openid = generate_eccess_token(openid)
+            context = {'openid': openid}
             return render(request, 'oauth_callback.html', context)
         else:
             # 如果openid已绑定美多商城用户
@@ -83,7 +83,7 @@ class QQAuthUserView(View):
         mobile = request.POST.get('mobile')
         pwd = request.POST.get('password')
         sms_code_client = request.POST.get('sms_code')
-        access_token = request.POST.get('access_token')
+        openid = request.POST.get('openid')
 
         # 校验参数
         # 判断参数是否齐全
@@ -103,7 +103,7 @@ class QQAuthUserView(View):
         if sms_code_client != sms_code_server.decode():
             return render(request, 'oauth_callback.html', {'sms_code_errmsg': '输入短信验证码有误'})
         # 判断openid是否有效：错误提示放在sms_code_errmsg位置
-        openid = check_access_token(access_token)
+        openid = check_access_token(openid)
         if not openid:
             return render(request, 'oauth_callback.html', {'openid_errmsg': '无效的openid'})
 

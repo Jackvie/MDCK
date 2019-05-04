@@ -22,7 +22,7 @@ class ImageCodeView(View):
         :return: image/jpg
         """
         # 生成图片验证码
-        name, text, image = captcha.generate_captcha()
+        text, image = captcha.generate_captcha()
 
         # 保存图片验证码
         redis_conn = get_redis_connection('verify_code')

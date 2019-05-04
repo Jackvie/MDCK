@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'contents',
     'verifications',
     'oauth',
+    'areas',
 ]
 
 # 指定本项目用户模型类
