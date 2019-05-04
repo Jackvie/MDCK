@@ -25,7 +25,7 @@ SECRET_KEY = 'o=3(ym_w*v6wdfn8pw6(ssjk^o#0&t#rx%r84tdqv)mqx#a#a$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["www.meiduo.site"]
 
 
 # Application definition
@@ -40,10 +40,31 @@ INSTALLED_APPS = [
     'users',
     'contents',
     'verifications',
+    'oauth',
 ]
 
 # 指定本项目用户模型类
 AUTH_USER_MODEL = 'users.User'
+
+# 指定自定义的用户认证后端
+AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileAuthBackend']
+
+# loginrequired装饰器指定未登录时跳转至登录页面
+LOGIN_URL = '/login/'
+
+QQ_CLIENT_ID = '101518219'
+QQ_CLIENT_SECRET = '418d84ebdc7241efb79536886ae95224'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8000/oauth_callback'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # 指定邮件后端
+EMAIL_HOST = 'smtp.163.com' # 发邮件主机
+EMAIL_PORT = 25 # 发邮件端口
+EMAIL_HOST_USER = 'itcast99@163.com' # 授权的邮箱
+EMAIL_HOST_PASSWORD = 'python99' # 邮箱授权时获得的密码，非注册登录密码
+EMAIL_FROM = '美多商城<itcast99@163.com>' # 发件人抬头
+
+# 邮箱验证链接
+EMAIL_VERIFY_URL = 'http://www.meiduo.site:8000/emails/verification/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

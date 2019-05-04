@@ -2,8 +2,10 @@ from celery import Celery
 import os
 
 
-# 告诉celery去那里加载Django配置文件
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "meiduo.settings.dev")
+# 为celery使用django配置文件进行设置
+import os
+if not os.getenv('DJANGO_SETTINGS_MODULE'):
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'meiduo.settings.dev'
 
 # 创建celery实现
 celery_app = Celery('meiduo')
@@ -12,4 +14,4 @@ celery_app = Celery('meiduo')
 celery_app.config_from_object('celery_tasks.config')
 
 # 自动注册celery任务
-celery_app.autodiscover_tasks(['celery_tasks.sms'])
+celery_app.autodiscover_tasks(['celery_tasks.sms', 'celery_tasks.email'])
