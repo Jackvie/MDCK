@@ -222,3 +222,10 @@ LOGGING = {
         },
     }
 }
+
+
+# 指定自定义的Django文件存储类
+DEFAULT_FILE_STORAGE = 'meiduo.utils.fastdfs.fastdfs_storage.FastDFSStorage'
+
+# nginx ip　和端口　FastDFS相关参数
+FDFS_BASE_URL = "http://192.168.118.130:8888/"
