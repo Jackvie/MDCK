@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.views import View
 from django import http
 from django.core.paginator import Paginator
+from django.utils import timezone
 
 from contents.utils import get_categories
-from goods.models import GoodsCategory, SKU
+from goods.models import GoodsCategory, SKU, GoodsVisitCount
 from goods.utils import get_breadcrumb
 from meiduo.utils.response_code import RETCODE
 # Create your views here.
@@ -138,3 +139,29 @@ class DetailView(View):
             'specs': goods_specs,
         }
         return render(request, 'detail.html', context)
+
+
+class DetailVisitView(View):
+    """详情页分类商品访问量"""
+
+    def post(self, request, category_id):
+        """记录分类商品访问量"""
+        try:
+            category = GoodsCategory.objects.get(id=category_id)
+        except GoodsCategory.DoesNotExist:
+            return http.HttpResponseForbidden('缺少必传参数')
+
+        today_date = timezone.localdate()
+        try:
+            counts_data = GoodsVisitCount.objects.get(category=category, date=today_date)
+        except GoodsVisitCount.DoesNotExist:
+            counts_data = GoodsVisitCount(
+                category = category
+            )
+
+        counts_data.count += 1
+        counts_data.save()
+        
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
+
+

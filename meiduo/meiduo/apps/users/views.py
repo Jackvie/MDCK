@@ -13,6 +13,7 @@ from meiduo.utils.response_code import RETCODE
 from meiduo.utils.view import LoginRequiredMixin, LoginRequiredJSONMixin
 from celery_tasks.email.tasks import send_verify_email
 from users.utils import generate_verify_email_url, check_verify_email_token
+from goods.models import SKU
 
 logger = logging.getLogger("django")
 # Create your views here.
@@ -541,4 +542,53 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
         # # 响应密码修改结果：重定向到登录界面
         return response
+
+
+class UserBrowseHistory(LoginRequiredJSONMixin, View):
+    """用户浏览记录"""
+    def post(self, request):
+        # 为已登陆用户存储浏览记录的sku_id到history_%s % user_id中
+        # 接收参数
+        json_dict = json.loads(request.body.decode())
+        sku_id = json_dict.get('sku_id')
+
+        # 校验参数
+        try:
+            SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return http.HttpResponseForbidden('sku不存在')
+
+        # 保存用户浏览数据
+        redis_conn = get_redis_connection('history')
+        pl = redis_conn.pipeline()
+        user_id = request.user.id
+
+        pl.lrem("history_%s" % user_id, 0, sku_id)
+        pl.lpush('history_%s' % user_id, sku_id)
+        pl.ltrim('history_%s' % user_id, 0, 4)
+
+        pl.execute()
+
+        # 响应结果
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
+
+    def get(self, request):
+        # 已登录用户获取浏览记录
+        # 获取Redis存储的sku_id列表信息
+        redis_conn = get_redis_connection('history')
+        user_id = request.user.id
+        sku_ids = redis_conn.lrange("history_%s" % user_id, 0, -1)
+
+        # 根据sku_ids列表数据，查询出商品sku信息
+        skus = []
+        for sku_id in sku_ids:
+            sku = SKU.objects.get(id=sku_id)  # 自动bytes转为int
+            skus.append({
+                'id': sku.id,  # or int(sku_id)  bytes强制转为int
+                'name': sku.name,
+                'price': sku.price,
+                'default_image_url': sku.default_image.url
+            })
+
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'skus': skus})
 
