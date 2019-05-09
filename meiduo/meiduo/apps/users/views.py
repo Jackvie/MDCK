@@ -14,6 +14,7 @@ from meiduo.utils.view import LoginRequiredMixin, LoginRequiredJSONMixin
 from celery_tasks.email.tasks import send_verify_email
 from users.utils import generate_verify_email_url, check_verify_email_token
 from goods.models import SKU
+from carts.utils import merge_cart_cookie_to_redis
 
 logger = logging.getLogger("django")
 # Create your views here.
@@ -172,6 +173,7 @@ class LoginView(View):
 
         # 登录时用户名写入到cookie，有效期15天
         response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+        response = merge_cart_cookie_to_redis(request, user, response)
 
         return response
 

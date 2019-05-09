@@ -213,3 +213,45 @@ class CartsView(View):
 
         return response
 
+
+class CartsSelectAllView(View):
+    """全选购物车"""
+
+    def put(self, request):
+        # 接受参数
+        selected = json.loads(request.body.decode()).get('selected')
+        # 校验参数
+        if selected:
+            if not isinstance(selected, bool):
+                return http.HttpResponseForbidden('参数selected有误')
+
+        response = http.JsonResponse({'code': RETCODE.OK, 'errmsg': '全选购物车成功'})
+
+        # 判断用户是否登录
+        user = request.user
+        if user is not None and user.is_authenticated:
+            # 用户已登录，操作redis购物车
+            redis_conn = get_redis_connection('carts')
+            redis_cart = redis_conn.hgetall("carts_%s" % user.id)
+            cart_selected = redis_conn.smembers('selected_%s' % user.id)
+            sku_id_list = redis_cart.keys()
+            if selected:
+                # 全选
+                redis_conn.sadd('selected_%s' % user.id, *sku_id_list)
+            else:
+                # 全不选
+                redis_conn.srem('selected_%s' % user.id, *sku_id_list)
+
+        else:
+            # 用户已登录，操作cookie购物车
+            cart_dict = request.COOKIES.get("carts", {})
+            if cart_dict:
+                cart_dict = pickle.loads(base64.b64decode(cart_dict.encode()))
+            for sku_id in cart_dict:
+                cart_dict[sku_id]['selected'] = selected
+
+            # 将字典转成bytes,再将bytes转成base64的bytes,最后将bytes转字符串
+            cart_dict = base64.b64encode(pickle.dumps(cart_dict)).decode()
+            response.set_cookie('carts', cart_dict, max_age=3600)
+
+        return response
