@@ -53,6 +53,20 @@ var vm = new Vue({
                 .catch(error => {
                     console.log(error.response);
                 })
+        },
+        // 微博登录
+        sina_login: function(){
+            //var next = get_query_string('next') || '/';
+            var url = this.host + '/sina/authorization/';
+            axios.get(url, {
+                    responseType: 'json'
+                })
+                .then(response => {
+                    location.href = response.data.login_url;
+                })
+                .catch(error => {
+                    console.log(error.response);
+                })
         }
     }
 });

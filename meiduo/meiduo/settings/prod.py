@@ -95,14 +95,14 @@ DATABASES = {
         'PASSWORD': '123456',  # 数据库用户密码
         'NAME': 'meiduo'  # 数据库名字
     },
-    'slave': {  # 读（从机）
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': '127.0.0.1',
-        'PORT': 8306,
-        'USER': 'root',
-        'PASSWORD': 'mysql',
-        'NAME': 'meiduo'
-    },
+    # 'slave': {  # 读（从机）
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'HOST': '127.0.0.1',
+    #     'PORT': 8306,
+    #     'USER': 'root',
+    #     'PASSWORD': 'mysql',
+    #     'NAME': 'meiduo'
+    # },
 }
 
 # Password validation
@@ -289,7 +289,12 @@ CRONJOBS = [
 
 CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
 
-DATABASE_ROUTERS = ['meiduo.utils.db_router.MasterSlaveDBRouter']
+# DATABASE_ROUTERS = ['meiduo.utils.db_router.MasterSlaveDBRouter']
 
 # 配置收集静态文件存放的目录
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+
+# 微博参数
+APP_KEY = '1473977117'
+APP_SECRET = '1faff8b1ff26a8b49b5ea84f22e82706'
+APP_RETURN_URL = 'http://www.meiduo.site:80/sina_callback'

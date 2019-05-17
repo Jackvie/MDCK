@@ -23,13 +23,15 @@ var vm = new Vue({
 		mobile: '',
 		image_code: '',
 		sms_code: '',
-		openid: ''
+		openid: '',
+		access_token: ''
 	},
 	mounted(){
 		// 生成图形验证码
 		this.generate_image_code();
 		// 初始化openid
 		this.openid = openid;
+		this.access_token = access_token;
 	},
 	methods: {
 
