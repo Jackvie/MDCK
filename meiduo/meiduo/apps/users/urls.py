@@ -33,4 +33,14 @@ urlpatterns = [
     url(r'^password/$', views.ChangePasswordView.as_view()),
     #　登录用户的浏览记录存储与读取
     url(r'^browse_histories/$', views.UserBrowseHistory.as_view()),
+    # 忘记密码请求
+    url(r'^find_password/$',views.FindPasswordView.as_view(), name="find_password"),
+    # 第一步用户输入图片验证码和用户名
+    url(r'^accounts/(?P<username>\w+)/sms/token/$', views.FirstView.as_view()),
+    # 验证access_token决定是否发送短信
+    url(r'^sms_codes/$', views.SecondView.as_view()),
+    # 短信已发送用户点击下一步,校验验证码是否正确
+    url(r'^accounts/(?P<username>\w+)/password/token/$', views.ThirdView.as_view()),
+    # 用户尝试性修改密码并提交表单
+    url(r'^users/(?P<user_id>\d+)/password/$', views.FourView.as_view()),
 ]

@@ -5,7 +5,7 @@ from django import http
 from django_redis import get_redis_connection
 from django.db import DatabaseError
 from django.contrib.auth import login, logout, authenticate
-import re, json, logging
+import re, json, logging, random, base64
 
 from users.models import User, Address
 from users import constants
@@ -593,4 +593,131 @@ class UserBrowseHistory(LoginRequiredJSONMixin, View):
             })
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'skus': skus})
+
+
+class FindPasswordView(View):
+    """忘记密码"""
+    def get(self, request):
+        """返回忘记密码页面"""
+        return render(request, 'find_password.html')
+
+
+class FirstView(View):
+    """第一步"""
+    def get(self, request, username):
+        """接收用户名和验证码"""
+        # 提取参数
+        text = request.GET.get("text")
+        uuid = request.GET.get("image_code_id")
+
+        # 校验参数
+
+        # 判断图片验证码
+        redis_conn = get_redis_connection("verify_code")
+        ser_text = redis_conn.get("img_%s" % uuid).decode()
+        if text.lower() != ser_text.lower():
+            return http.HttpResponseBadRequest("验证码错误")
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return http.HttpResponseNotFound("用户名不存在")
+
+        mobile = user.mobile
+
+        # 构造响应
+        access_token = base64.b64encode(mobile.encode()).decode()  # 将手机号加密作为accesstoken
+        context = {
+            "mobile":mobile,
+            "access_token": access_token
+        }
+        return http.JsonResponse(context)
+
+from celery_tasks.sms.tasks import ccp_send_sms_code
+# sms_codes/?access_token='+ this.access_token
+class SecondView(View):
+    """第二步"""
+    def get(self, request):
+        """发送短信"""
+
+        # 提取参数access_token
+        access_token = request.GET.get("access_token")
+
+        # 校验
+        mobile = base64.b64decode(access_token.encode()).decode()  # 将access_token解密得到mobile
+        try:
+            User.objects.get(mobile=mobile)
+        except User.DoesNotExist:
+            return http.JsonResponse({'error':'access_token不一致'}, status = 400)
+
+        sms_code = "{:06d}".format(random.randint(0,999999))
+        print(sms_code)
+        redis_conn = get_redis_connection("verify_code")
+        redis_conn.setex("%s" % mobile, 60, sms_code)
+        ccp_send_sms_code.delay(mobile, sms_code)
+        # 成功
+        return http.JsonResponse({'message': 'ok'})
+
+
+class ThirdView(View):
+    """用户点击下一步，发送请求校验短信验证码"""
+    def get(self, request, username):
+        """http://www.meiduo.site:8000/accounts/python/password/token/?sms_code=248861"""
+        sms_code = request.GET.get("sms_code")
+        redis_conn = get_redis_connection("verify_code")
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return http.HttpResponseNotFound("not found user")
+
+        mobile = user.mobile
+        user_id = user.id
+        access_token = base64.b64encode(mobile.encode()).decode()  # 将手机号加密作为accesstoken
+        ser_sms_code = redis_conn.get("%s" % mobile).decode()
+
+        if ser_sms_code != sms_code:
+            return http.HttpResponseBadRequest("验证码错误")
+
+        context = {
+            'user_id': user_id,
+            'access_token': access_token
+        }
+
+        return http.JsonResponse(context)
+
+
+class FourView(View):
+    """users/(?P<user_id>\d+)/password/
+    用户尝试性修改密码并提交表单post
+    """
+    def post(self, request, user_id):
+        # 提取请求体参数
+        json_dict = json.loads(request.body.decode())
+        password = json_dict.get("password")
+        password2 = json_dict.get("password2")
+        access_token = json_dict.get("access_token")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return http.JsonResponse({'error': 'user is not found'}, status=400)
+
+        mobile = user.mobile
+        # 通过access_token提取出前端传来的手机号
+        mobile2 = base64.b64decode(access_token.encode()).decode()
+        if mobile != mobile2:  # 比对
+            return http.JsonResponse({'error': 'access_token与手机哈 不一致'}, status=400)
+
+        if password != password2:
+            return http.JsonResponse({'error': '两次密码不一致'}, status=400)
+        if len(password)<8 or len(password)>20:
+            return http.JsonResponse({'error':'太短了太长了'}, status=400)
+
+        user.password = password
+        user.save()
+        # user.set_password(password)
+        # user.save()
+
+        return http.JsonResponse({'message':'ok'})
+
+
+
 
