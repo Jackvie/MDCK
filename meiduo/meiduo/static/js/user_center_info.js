@@ -13,7 +13,11 @@ var vm = new Vue({
         error_email_message: '',
         send_email_btn_disabled: false,
         send_email_tip: '重新发送验证邮件',
-        histories: []
+        histories: [],
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     // ES6语法
     mounted() {
@@ -23,6 +27,9 @@ var vm = new Vue({
 
         // 请求浏览历史记录
         this.browse_histories();
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         // 检查email格式

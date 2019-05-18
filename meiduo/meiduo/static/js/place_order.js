@@ -8,12 +8,21 @@ var vm = new Vue({
         pay_method: 2, // 支付方式,默认支付宝支付
         nowsite: '', // 默认地址
         payment_amount: '',
+        username: '',
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     mounted(){
         // 初始化
         this.payment_amount = payment_amount;
         // 绑定默认地址
         this.nowsite = default_address_id;
+        this.username = getCookie('username');
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         // 提交订单

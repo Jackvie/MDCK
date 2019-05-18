@@ -16,6 +16,10 @@
     <div class="header_con">
         <div class="header">
             <div class="welcome fl">欢迎来到美多商城!</div>
+            <div class="sina_user_msg">mycotent</div>
+            <img :src="sina_img_url" alt="微博头像" v-show="sina_img_url">
+            <span>|</span>
+            <input :value="sina_user_name" type="text" name="">
             <div class="fr">
                 <div class="login_btn fl" v-if="username">
                     欢迎您：<em>[[ username ]]</em>

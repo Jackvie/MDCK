@@ -15,6 +15,8 @@
     <div class="header_con">
         <div class="header">
             <div class="welcome fl">欢迎来到美多商城!</div>
+            <div class="sina_user_msg">[[ sina_user_name ]]</div>
+            <a :href="profile_url"><img :src="sina_img_url" alt="微博头像" v-show="sina_img_url" class="sina_user_img" width="30px" height="30px"></a>
             <div class="fr">
                 <div class="login_btn fl">
                     欢迎您：<em>{{ request.user.username }}</em>

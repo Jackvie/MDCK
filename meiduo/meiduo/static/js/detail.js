@@ -9,6 +9,7 @@ var vm = new Vue({
         sku_count: 1,
         sku_price: price,
         sku_amount: 0,
+        username: '',
         category_id: category_id,
         tab_content: {
 		    detail: true,
@@ -26,6 +27,10 @@ var vm = new Vue({
         },
         cart_total_count: 0, // 购物车总数量
         carts: [], // 购物车数据,
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     mounted(){
 		// 获取热销商品数据
@@ -42,6 +47,11 @@ var vm = new Vue({
 
 		// 获取商品评价信息
         this.get_goods_comment();
+
+        this.username = getCookie('username');
+    },
+     created: function(){
+        ask_sina_msg(this);
     },
     watch: {
         // 监听商品数量的变化

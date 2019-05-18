@@ -2,6 +2,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadData
 from django.conf import settings
 import requests, json
 from urllib.parse import urlencode, parse_qs
+from django_redis import get_redis_connection
 
 from oauth import constants
 
@@ -61,7 +62,26 @@ class SinaLoginTool(object):
             response = requests.post(url)
             text = response.content.decode()
             access_token = json.loads(text).get("access_token")
+            uid = json.loads(text).get("uid")
+            redis_conn = get_redis_connection("verify_code")
+            redis_conn.setex("uid_%s" % access_token, 3600, uid)  # 将uid存至redis可以通过唯一access_token取出唯一uid
         except Exception:
             access_token = None
         return access_token
+
+    def get_sina_user_msg(self, access_token, uid):
+        """获取用户的微博信息"""
+        # access_token uid get方式
+        # https://api.weibo.com/2/users/show.json
+        oauth_dict = {"access_token":access_token,"uid":int(uid)}
+        url = "https://api.weibo.com/2/users/show.json"
+        response = requests.get(url, params=oauth_dict)
+        result = response.content.decode()
+        result = json.loads(result)
+        sina_img_url = result.get("profile_image_url")
+        sina_user_name = result.get("screen_name")
+        profile_url = result.get("profile_url")
+        print(sina_img_url,sina_user_name,profile_url)
+        context = {"sina_img_url":sina_img_url,"sina_user_name":sina_user_name,"profile_url":profile_url}
+        return context
 

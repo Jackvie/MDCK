@@ -27,3 +27,18 @@ function generateUUID() {
     });
     return uuid;
 }
+
+function ask_sina_msg(name) {
+    axios.get(name.host + '/users/sina/', {
+        responseType: 'json',
+    })
+        .then(response => {
+            name.sina_user_name = response.data.sina_user_name;
+            name.sina_img_url = response.data.sina_img_url;
+            name.profile_url = this.sina_before+response.data.profile_url;
+})
+
+        .catch(error => {
+            console.log(error.response.data);
+})
+}

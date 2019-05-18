@@ -91,7 +91,12 @@ class PaymentStatusView(View):
                     'trade_id':trade_id
                 }
                 return render(request, 'pay_success.html', context)
-        return http.HttpResponseForbidden("此订单已经支付过")
+        
+        context = {
+            'trade_id': trade_id
+        }
+        # 此订单已经支付过
+        return render(request, 'pay_success.html', context)
 
 
 

@@ -15,6 +15,7 @@ from celery_tasks.email.tasks import send_verify_email
 from users.utils import generate_verify_email_url, check_verify_email_token
 from goods.models import SKU
 from carts.utils import merge_cart_cookie_to_redis
+from oauth.utils import SinaLoginTool
 
 logger = logging.getLogger("django")
 # Create your views here.
@@ -711,12 +712,53 @@ class FourView(View):
         if len(password)<8 or len(password)>20:
             return http.JsonResponse({'error':'太短了太长了'}, status=400)
 
-        user.password = password
+        # user.password = password
+        # user.save() 不能这样做，明文密码登陆是check_password()
+        user.set_password(password)
         user.save()
-        # user.set_password(password)
-        # user.save()
 
         return http.JsonResponse({'message':'ok'})
+
+
+class UsersSinaView(View):
+    """返回微博用户信息"""
+    def get(self, request):
+        user = request.user
+        if user.is_authenticated:
+            # 用户已经登录
+            if len(user.oauthsinauser_set.all()) == 1:
+                # 绑定过微博, 拿到access_token
+                access_token = user.oauthsinauser_set.all()[0].access_token
+            else:
+                # 未绑定多微博,抛出异常
+                raise Exception("access_token is none, the user no bind sina")
+
+            # 使用access_token获取uid
+            redis_conn = get_redis_connection("verify_code")
+            uid = redis_conn.get("uid_%s" % access_token)
+
+            if uid is None:
+                # 拿不到uid,uid失效, 抛出异常
+                uid = "xxx"
+                raise Exception("uid is already none")
+
+            try:
+                # 异常传递, 捕获异常
+                uid = uid.decode()
+
+            except Exception as e:
+                print(e)
+                return http.HttpResponseNotFound(e)
+            else:
+                # 没有异常构造响应
+                context = SinaLoginTool().get_sina_user_msg(access_token, uid)
+                return http.JsonResponse(context, status=200)
+        # 用户未登录
+        else:
+            return http.HttpResponseNotFound("anaymous_user")
+
+
+
 
 
 

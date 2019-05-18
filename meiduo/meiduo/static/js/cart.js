@@ -10,6 +10,10 @@ var vm = new Vue({
         total_selected_amount: 0,
         carts_tmp: [],
         username: '',
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     computed: {
         selected_all(){
@@ -34,6 +38,9 @@ var vm = new Vue({
 
         // 计算被勾选的商品总金额和总数量
         this.compute_total_selected_amount_count();
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         // 初始化购物车数据并渲染界面

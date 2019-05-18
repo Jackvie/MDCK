@@ -9,7 +9,18 @@ var vm = new Vue({
         new_cpwd: '',
         error_opwd: false,
         error_pwd: false,
-        error_cpwd: false
+        error_cpwd: false,
+        username: '',
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
+    },
+    mounted() {
+        this.username = getCookie('username');
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         // 检查旧密码

@@ -4,9 +4,17 @@ var vm = new Vue({
     delimiters: ['[[', ']]'],
     data: {
         host: host,
+        username: '',
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     mounted(){
-
+        this.username = getCookie('username');
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         oper_btn_click(order_id, status){

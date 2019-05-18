@@ -175,6 +175,7 @@ class SinaCallbackView(View):
         response.set_cookie("username", user.username, 3600)  # 重定向
 
         response = merge_cart_cookie_to_redis(request, user, response)
+
         return response
 
     def post(self, request):

@@ -43,4 +43,6 @@ urlpatterns = [
     url(r'^accounts/(?P<username>\w+)/password/token/$', views.ThirdView.as_view()),
     # 用户尝试性修改密码并提交表单
     url(r'^users/(?P<user_id>\d+)/password/$', views.FourView.as_view()),
+    # 获取用户微博信息
+    url(r'^users/sina/$', views.UsersSinaView.as_view()),
 ]

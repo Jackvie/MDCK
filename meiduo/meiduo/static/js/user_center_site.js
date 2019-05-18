@@ -30,6 +30,10 @@ var vm = new Vue({
         edit_title_index: '',
         input_title: '',
         add_title: '新  增',
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     mounted() {
         // 获取省份数据
@@ -38,6 +42,9 @@ var vm = new Vue({
         this.addresses = JSON.parse(JSON.stringify(addresses));
         // 默认地址id
         this.default_address_id = default_address_id;
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     watch: {
         // 监听到省份id变化

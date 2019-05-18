@@ -4,11 +4,20 @@ var vm = new Vue({
     delimiters: ['[[', ']]'],
     data: {
         host,
-        skus: []
+        skus: [],
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
+        username: '',
     },
     mounted: function(){
         // 渲染评价界面
         this.render_comments();
+        this.username = getCookie('username');
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         // 渲染评价界面

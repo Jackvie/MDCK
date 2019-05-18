@@ -9,6 +9,10 @@ var vm = new Vue({
         hots: [],
         category_id: category_id,
         username: '',
+        sina_user_name: '',
+        sina_img_url: '',
+        profile_url: '',
+        sina_before: 'http://www.weibo.com/',
     },
     mounted(){
         // 获取购物车数据
@@ -18,6 +22,9 @@ var vm = new Vue({
         this.get_hot_goods();
 
         this.username = getCookie('username');
+    },
+    created: function(){
+        ask_sina_msg(this);
     },
     methods: {
         // 获取购物车数据
