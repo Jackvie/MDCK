@@ -1,0 +1,55 @@
+#small_img {
+  width:350px;
+  height:350px;
+  overflow:hidden; 
+  position:relative;  /*黄色遮罩相对于#div1进行绝对定位*/ 
+  /*position: fixed;
+  top: 50%;
+  left: 50%;*/
+}
+
+
+#small_img span {
+  width:100px; 
+  height:100px; 
+  background:yellow; 
+  opacity:0.5; 
+  filter:alpha(opacity=50); 
+  position:absolute; /* 黄色遮罩绝对定位才能跟随鼠标移动 */
+  left:0; 
+  top:0; 
+  display:none; /* 鼠标移入图片后才显示黄色遮罩 */
+  cursor: move;
+}
+
+/* 
+消除mouseover和mouseout事件子级对父级的影响
+(阻止事件冒泡不能消除子级对父级的影响，所以在黄色遮罩和图片之间加个透明的隔离层)
+*/
+#mark { 
+  width:180px; 
+  height:180px; 
+  background:red; 
+  position:absolute; 
+  left:0; 
+  top:0;
+  opacity:0; 
+  filter:alpha(opacity=0);
+}
+
+#middle_img {
+  width:500px; 
+  height:500px; 
+  position:absolute; 
+  left:500px;
+  top:230px; 
+  overflow:hidden;
+  display:none;
+  z-index: 10000;
+}
+
+#middle_img img {
+  position:absolute; 
+  left:0; 
+  top:0;
+}

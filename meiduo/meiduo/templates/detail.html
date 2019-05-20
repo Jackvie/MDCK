@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}美多商城-商品详情{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ static('css/enlarge.css') }}">
+<script type="text/javascript" src="{{ static('js/enlarge.js') }}"></script>
+
+{% endblock %}
+
 {% block content %}
     <div class="search_bar clearfix">
         <a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
@@ -78,7 +84,13 @@
     </div>
 
     <div class="goods_detail_con clearfix">
-        <div class="goods_detail_pic fl"><img src="{{ sku.default_image.url }}"></div>
+        <div class="goods_detail_pic fl" id="small_img">
+            <img src="{{ sku.default_image.url }}" width="350px" height="350px">
+            <span></span>
+        </div>
+        <div id="middle_img">
+            <img src="{{ sku.default_image.url }}">
+        </div>
         <div class="goods_detail_list fr">
             <h3>{{ sku.name }}</h3>
             <p>【{{ sku.caption }}】</p>
