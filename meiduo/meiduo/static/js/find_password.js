@@ -223,6 +223,11 @@ var vm = new Vue({
                         this.step_class['step-3'] = false;
                         this.is_show_form_3 = false;
                         this.is_show_form_4 = true;
+                        setTimeout(
+                            // 定时器是时间过后调用这个函数,这儿必须是定义函数,不能直接调用函数,直接调用函数不会等待定时,因延时过后让定时器自己去调用这个定义的函数
+                            ()=>{location.href = this.host + "/login/";},2000
+                        );
+                        // alert("a") 定时器是异步执行不会阻塞下边代码的执行
                     })
                     .catch(error => {
                         alert(error.response.data.message);
@@ -232,3 +237,9 @@ var vm = new Vue({
         }
     }
 })
+// return JsonResponse({}, status=400)
+// response = JsonResponse({})   .code == 0
+alert(respnse.status)
+ response.status
+// response.status_code = 400
+// return response
