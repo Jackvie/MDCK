@@ -41,7 +41,7 @@
   width:500px; 
   height:500px; 
   position:absolute; 
-  left:500px;
+  left:560px;
   top:230px; 
   overflow:hidden;
   display:none;
@@ -49,6 +49,8 @@
 }
 
 #middle_img img {
+  width: 1250px;
+  height: 1250px;
   position:absolute; 
   left:0; 
   top:0;
