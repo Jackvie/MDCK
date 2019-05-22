@@ -297,3 +297,6 @@ STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 APP_KEY = '1473977117'
 APP_SECRET = '1faff8b1ff26a8b49b5ea84f22e82706'
 APP_RETURN_URL = 'http://www.meiduo.site:8000/sina_callback'
+
+# 设置订单有效期
+ORDER_EXPIRE_DAY = 2

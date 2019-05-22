@@ -38,6 +38,13 @@
                 <ul class="order_list_th w978 clearfix">
                     <li class="col01">{{ order.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</li>
                     <li class="col02">订单号：{{ order.order_id }}</li>
+                    {% if order.status_name == "待支付" %}
+                        {% if loop.index == 1 %}
+                            <li>[[ create_time1 ]]</li>
+                        {% elif loop.index == 2 %}
+                            <li>[[ create_time2 ]]</li>
+                        {% endif %}
+                    {% endif %}
                 </ul>
                 <table class="order_list_table w980">
                     <tbody>
@@ -55,12 +62,30 @@
                         <td width="15%">{{ order.total_amount }}元<br>含运费：{{ order.freight }}元</td>
                         <td width="15%">{{ order.pay_method_name }}</td>
                         <td width="15%">
-                            <a @click="oper_btn_click('{{ order.order_id }}', {{ order.status }})"
-                               class="oper_btn">{{ order.status_name }}</a>
+                            {% if loop.index == 1 %}
+                                <a @click="oper_btn_click('{{ order.order_id }}', {{ order.status }})"
+                               class="oper_btn" v-show="errmsg11">{{ order.status_name }}</a>
+                                <a class="oper_btn" v-show="errmsg12">已取消</a>
+                            {% elif loop.index == 2 %}
+                                <a @click="oper_btn_click('{{ order.order_id }}', {{ order.status }})"
+                               class="oper_btn" v-show="errmsg21">{{ order.status_name }}</a>
+                                <a class="oper_btn" v-show="errmsg22">已取消</a>
+                            {% endif %}
+
                         </td>
                     </tr>
+
                     </tbody>
+
                 </table>
+                {% if order.status_name == "待支付" %}
+                    {% if loop.index == 1 %}
+                        <input @click="cancel_order('{{ order.order_id }}', {{ loop.index }})" type="button" name="" id="" :value="cancel1" style="display: inline-block; float: right; border: 0 seashell dashed; background-color: #f4f4f4;">
+                    {% elif loop.index == 2 %}
+                        <input @click="cancel_order('{{ order.order_id }}', {{ loop.index }})" type="button" name="" id="" :value="cancel2" style="display: inline-block; float: right; border: 0 seashell dashed; background-color: #f4f4f4;">
+                    {% endif %}
+                {% endif %}
+
             {% endfor %}
             <div class="pagenation">
                 <div id="pagination" class="page"></div>
@@ -70,8 +95,26 @@
 {% endblock %}
 
 {% block bottom %}
+<script>
+
+    // 遗留问题一个页面只能显示两个购物车一个就报错
+    var order_count = "{{ order_count }}";  // 订单总数
+    {#var page_orders = "{{ page_orders }}";  // 当前页对象,可能为空#}
+    if (order_count >= 1 ){  // 如果订单空,则分页对象必然空,不给vue赋值
+            var order_time1 = "{{ page_orders.0.order_expire_time }}";
+            var order_id1 = "{{ page_orders.0.order_id }}";
+
+        if (order_count >= 2){
+            var order_time2 = "{{ page_orders.1.order_expire_time }}";
+            var order_id2 = "{{ page_orders.1.order_id }}";
+        }
+    }
+
+</script>
 <script type="text/javascript" src="/static/js/jquery.pagination.min.js"></script>
+
 <script type="text/javascript" src="/static/js/user_center_order.js"></script>
+
 <script>
     $(function () {
         $('#pagination').pagination({
@@ -83,4 +126,5 @@
         })
     });
 </script>
+
 {% endblock %}

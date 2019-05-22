@@ -737,18 +737,15 @@ class UsersSinaView(View):
             # 使用access_token获取uid
             redis_conn = get_redis_connection("verify_code")
             uid = redis_conn.get("uid_%s" % access_token)
-
-            if uid is None:
-                # 拿不到uid,uid失效, 抛出异常
-                uid = "xxx"
-                raise Exception("uid is already none")
-
             try:
-                # 异常传递, 捕获异常
+                if uid is None:
+                    # 拿不到uid,uid失效, 抛出异常
+                    uid = "xxx"
+                    raise Exception("uid is already none")
+
                 uid = uid.decode()
 
             except Exception as e:
-                print(e)
                 return http.HttpResponseNotFound(e)
             else:
                 # 没有异常构造响应

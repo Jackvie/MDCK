@@ -6,6 +6,7 @@ from django.utils import timezone
 from django import http
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage
+from django.conf import settings
 import json
 
 from meiduo.utils.view import LoginRequiredMixin, LoginRequiredJSONMixin
@@ -221,6 +222,9 @@ class UserOrderInfoView(LoginRequiredMixin, View):
             # 绑定支付方式
             order.pay_method_name = OrderInfo.PAY_METHOD_CHOICES[order.pay_method-1][1]
             order.sku_list = []
+
+            from datetime import timedelta
+            order.order_expire_time = str(order.create_time + timedelta(settings.ORDER_EXPIRE_DAY)).split("+")[0]
             # 查询订单商品
             order_goods = order.skus.all()
             # 遍历订单商品
@@ -238,10 +242,13 @@ class UserOrderInfoView(LoginRequiredMixin, View):
         except EmptyPage:
             return http.HttpResponseForbidden('订单不存在')
 
+
+
         context = {
             "page_orders": page_orders,
             'total_page': total_page,
             'page_num': page_num,
+            'order_count': paginator.count  # 分页后的总数,一共有多少订单
         }
         return render(request, "user_center_order.html", context)
 
@@ -330,7 +337,7 @@ class OrderCommentView(LoginRequiredMixin, View):
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '评价成功'})
 
 
-    class GoodsCommentView(View):
+class GoodsCommentView(View):
         """订单商品评价信息"""
 
         def get(self, request, sku_id):
@@ -346,4 +353,39 @@ class OrderCommentView(LoginRequiredMixin, View):
                     'score':order_goods.score,
                 })
             return http.JsonResponse({'code':RETCODE.OK, 'errmsg':'OK', 'comment_list': comment_list})
+
+
+class CancelOrderView(LoginRequiredMixin, View):
+    """取消订单"""
+    def get(self, request, order_id):
+        try:
+            order = OrderInfo.objects.get(order_id=order_id,user=request.user)
+        except OrderInfo.DoesNotExist:
+            return http.JsonResponse({"errmsg": "取消不存在"}, status=400)
+        with transaction.atomic():
+            the_save_id = transaction.savepoint()
+            try:
+                order.status = 6  # 已取消
+                order.save()
+                goods = order.skus.all()
+                for good in goods:
+                    # 修改状态
+                    sku = good.sku
+                    sku.stock += 1
+                    sku.sales -= 1
+                    sku.save()
+                    sku.spu.sales -= 1
+                    sku.spu.save()
+            except Exception as e:
+                print(e)
+                transaction.savepoint_rollback(the_save_id)
+                return http.JsonResponse({"errmsg": "取消订单失败"}, status=400)
+            # 取消成功
+            transaction.savepoint_commit(the_save_id)
+
+        context = {
+            "code":"0",
+            "errmsg": "OK",
+        }
+        return http.JsonResponse(context)
 

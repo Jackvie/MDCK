@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^orders/info/(?P<page_num>\d+)/$', views.UserOrderInfoView.as_view()),
     # 订单评价
     url(r'^orders/comment/$', views.OrderCommentView.as_view()),
+    # 取消订单
+    url(r'^orders/cancel/(?P<order_id>\d+)/$', views.CancelOrderView.as_view()),
 ]
