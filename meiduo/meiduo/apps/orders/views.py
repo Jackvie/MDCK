@@ -241,14 +241,17 @@ class UserOrderInfoView(LoginRequiredMixin, View):
             total_page = paginator.num_pages
         except EmptyPage:
             return http.HttpResponseForbidden('订单不存在')
-
-
-
+        # 将当前页里的每个对象包成一个列表
+        page_dict = dict()
+        for page_order in page_orders:
+            page_dict[page_orders.index(page_order)] = page_order
+        print(page_dict)
         context = {
             "page_orders": page_orders,
             'total_page': total_page,
             'page_num': page_num,
-            'order_count': paginator.count  # 分页后的总数,一共有多少订单
+            # 'order_count': paginator.count,  # 分页后的总数,一共有多少订单
+            'page_dict': page_dict,
         }
         return render(request, "user_center_order.html", context)
 

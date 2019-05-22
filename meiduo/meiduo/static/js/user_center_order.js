@@ -67,9 +67,9 @@ var vm = new Vue({
             }
             this.create_time1 = "订单有效期："+this.d1 + ":" + this.h1 + ":" + this.m1 + ":" + this.s1;
             // 如果有效期时间归零
-            if (this.d1 == 0 && this.h1 == 0 && this.m1 == 0 && this.s1 <= 2){
-                this.cancel_order(this.order_id1, 1);
-            }
+            // if (this.d1 == 0 && this.h1 == 0 && this.m1 == 0 && this.s1 <= 2){
+            //     this.cancel_order(this.order_id1, 1);
+            // }
             setTimeout(this.myfun1, 1000);
         },
         // 控制2号订单渲染
@@ -94,9 +94,9 @@ var vm = new Vue({
             }
             this.create_time2 = "订单有效期："+this.d2 + ":" + this.h2 + ":" + this.m2 + ":" + this.s2;
 
-            if (this.d2 == 0 && this.h2 == 0 && this.m2 == 0 && this.s2 <= 2){
-                this.cancel_order(this.order_id2, 2);
-            }
+            // if (this.d2 == 0 && this.h2 == 0 && this.m2 == 0 && this.s2 <= 2){
+            //     this.cancel_order(this.order_id2, 2);
+            // }
 
             setTimeout(this.myfun2, 1000);
         },
@@ -154,12 +154,12 @@ var vm = new Vue({
                             // 取消页面订单显示
 
                         } else {
-                            alert(this.errmsg);
+                            alert(this.errmsg+"aaa");
                         }
                     }
                 )
                 .catch(error => {
-                        alert(this.errmsg);
+                        alert(this.errmsg+"bbb");
                     })
         },
     }

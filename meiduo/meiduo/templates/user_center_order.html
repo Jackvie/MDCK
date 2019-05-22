@@ -98,16 +98,16 @@
 <script>
 
     // 遗留问题一个页面只能显示两个购物车一个就报错
-    var order_count = "{{ order_count }}";  // 订单总数
+    {#var order_count = "{{ order_count }}";  // 订单总数#}
     {#var page_orders = "{{ page_orders }}";  // 当前页对象,可能为空#}
-    if (order_count >= 1 ){  // 如果订单空,则分页对象必然空,不给vue赋值
-            var order_time1 = "{{ page_orders.0.order_expire_time }}";
-            var order_id1 = "{{ page_orders.0.order_id }}";
-
-        if (order_count >= 2){
-            var order_time2 = "{{ page_orders.1.order_expire_time }}";
-            var order_id2 = "{{ page_orders.1.order_id }}";
-        }
+    var pagedict = "{{ page_dict|length }}";
+    if (pagedict >= 1){
+        var order_time1 = "{{ page_dict.get(0).order_expire_time }}";
+        var order_id1 = "{{ page_dict.get(0).order_id }}";
+    }
+    if (pagedict == 2){
+        var order_time2 = "{{ page_dict.get(1).order_expire_time }}";
+        var order_id2 = "{{ page_dict.get(1).order_id }}";
     }
 
 </script>
