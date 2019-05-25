@@ -9,13 +9,13 @@ html {
 }
 @keyframes floatOne {
 0% {
-opacity:1;
+opacity:0.3;
 }
 50% {
-opacity:1;
+opacity:0.2;
 }
 100% {
-opacity:0;
+opacity:0.1;
 transform:translate3D(0, -20px, 0) scale(5) rotate(45deg);
 }
 }
