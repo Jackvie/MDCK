@@ -9,96 +9,72 @@ var vm = new Vue({
         sina_img_url: '',
         profile_url: '',
         sina_before: 'http://www.weibo.com/',
-        // 订单1,2的未来时间戳
-        order_time1:order_time1,
-        order_time2:order_time2,
-        //　订单1,2的剩余时间
-        create_time1: "",
-        create_time2: "",
-        d1:"",
-        h1:"",
-        m1:"",
-        s1:"",
-        d2:"",
-        h2:"",
-        m2:"",
-        s2:"",
-        errmsg:"取消订单失败",
-        errmsg11:true,
-        errmsg12:false,
-        errmsg21:true,
-        errmsg22:false,
-        time_over1: "start",
-        time_over2: "start",
-        cancel1: "取消订单",
-        cancel2: "取消订单",
-        order_id1: order_id1,
-        order_id2: order_id2,
+
+        page_num: page_num, //当前页码
+        page_orders: [],  //页码中的订单对象集
+
+        errmsg: "取消订单失败",
+
+
+    },
+    created(){
+
+        this.for_orders();
+
     },
     mounted(){
         this.username = getCookie('username');
+
     },
-    created: function(){
-        ask_sina_msg(this);
-        this.myfun1();
-        this.myfun2();
+    updated(){
+        setInterval(this.orders_time, 1000);
     },
+
+
     methods: {
-        // 控制1号订单渲染
-        myfun1: function() {
-            if (this.time_over1 == ""){
-                return
-            }
+        for_orders(){
 
-            var date = new Date();
-            var now = date.getTime();
-            //设置截止时间
-            var endDate = new Date(this.order_time1);
-            var end = endDate.getTime();
-            //时间差
-            var leftTime = end - now;
-
-            //定义变量 d,h,m,s保存倒计时的时间
-            if (leftTime >= 0) {
-                this.d1 = Math.floor(leftTime / 1000 / 60 / 60 / 24);
-                this.h1 = Math.floor(leftTime / 1000 / 60 / 69 % 24);
-                this.m1 = Math.floor(leftTime / 1000 / 60 % 60);
-                this.s1 = Math.floor(leftTime / 1000 % 60);
-            }
-            this.create_time1 = "订单有效期："+this.d1 + ":" + this.h1 + ":" + this.m1 + ":" + this.s1;
-            // 如果有效期时间归零
-            // if (this.d1 == 0 && this.h1 == 0 && this.m1 == 0 && this.s1 <= 2){
-            //     this.cancel_order(this.order_id1, 1);
-            // }
-            setTimeout(this.myfun1, 1000);
+            axios.post(this.host+"/orders/info/"+this.page_num+"/")
+                .then(response => {
+                    this.page_orders = response.data.page_orders;
+                })
+                .catch(error => {
+                    console.log(error.response.data);
+                })
         },
-        // 控制2号订单渲染
-        myfun2: function() {
-            if (this.time_over2 == ""){
-                return
+
+        orders_time(){
+            if(this.page_orders.length == 0){return};
+
+            for (let i = 0; i < this.page_orders.length; i++) {
+                // 只要不是待支付状态,直接跳过本次循环
+                if (this.page_orders[i].status != 1){continue}
+
+                // 待支付状态设置有效期
+                var date = new Date();
+                var now = date.getTime();
+                //设置截止时间
+                var endDate = new Date(this.page_orders[i].order_expire_time);
+                var end = endDate.getTime();
+                //时间差
+                var leftTime = end - now;
+
+                //定义变量 d,h,m,s保存倒计时的时间
+                if (leftTime > 0) {
+                    var d = Math.floor(leftTime / 1000 / 60 / 60 / 24);
+                    var h = Math.floor(leftTime / 1000 / 60 / 69 % 24);
+                    var m = Math.floor(leftTime / 1000 / 60 % 60);
+                    var s = Math.floor(leftTime / 1000 % 60);
+                    Vue.set(this.page_orders[i], "realtime", "订单有效期: "+d + "天" + h + "时" + m + "分" + s + "秒");
+                } else {
+                    // 有效期自动归零发送请求取消订单
+                    this.cancel_order(this.page_orders[i].status, this.page_orders[i].order_id);
+                }
+
+
+
+
             }
-            var date = new Date();
-            var now = date.getTime();
-            //设置截止时间
-            var endDate = new Date(this.order_time2);
-            var end = endDate.getTime();
-            //时间差
-            var leftTime = end - now;
-
-            //定义变量 d,h,m,s保存倒计时的时间
-            if (leftTime >= 0) {
-                this.d2 = Math.floor(leftTime / 1000 / 60 / 60 / 24);
-                this.h2 = Math.floor(leftTime / 1000 / 60 / 69 % 24);
-                this.m2 = Math.floor(leftTime / 1000 / 60 % 60);
-                this.s2 = Math.floor(leftTime / 1000 % 60);
-            }
-            this.create_time2 = "订单有效期："+this.d2 + ":" + this.h2 + ":" + this.m2 + ":" + this.s2;
-
-            // if (this.d2 == 0 && this.h2 == 0 && this.m2 == 0 && this.s2 <= 2){
-            //     this.cancel_order(this.order_id2, 2);
-            // }
-
-            setTimeout(this.myfun2, 1000);
         },
 
         oper_btn_click(order_id, status){
@@ -127,40 +103,34 @@ var vm = new Vue({
                 location.href = '/';
             }
         },
-        cancel_order(order_id, index){
+
+        // 取消订单
+        cancel_order(status, order_id){
+            if (status != 1){return}
 
             var url = this.host+"/orders/cancel/"+order_id+"/";
             axios.get(url, {
                 responseType: 'json'
             })
-                .then(
-                    response => {
-                        if (response.data.code == '0') {
-                            if (index == 1){
-
-                                this.create_time1 = "";
-                                this.time_over1 = "";  // 清理定时器
-                                this.cancel1 = "";
-                                this.errmsg11 = false;
-                                this.errmsg12 = true;
+                .then(response => {
+                    if (response.data.code == '0') {
+                        // 取消页面订单显示
+                        order_id = response.data.order_id;
+                        this.page_orders.forEach((value, index, att)=>{
+                            if (value.order_id == order_id){
+                                Vue.set(value, 'status', 6);
+                                Vue.set(value, 'status_name', "已取消");
+                                // 将有效期一次性置空
+                                Vue.set(value, 'realtime', "")
                             }
-                            else if (index == 2){
-                                this.create_time2 = "";
-                                this.time_over2 = "";  // 清理定时器
-                                this.cancel2 = "";
-                                this.errmsg21 = false;
-                                this.errmsg22 = true;
-                            }
-                            // 取消页面订单显示
-
-                        } else {
-                            alert(this.errmsg+"aaa");
-                        }
+                        });
+                    } else {
+                        alert(this.errmsg+"a");
                     }
-                )
+                })
                 .catch(error => {
-                        alert(this.errmsg+"bbb");
-                    })
+                    alert(this.errmsg+"b");
+                })
         },
     }
 });

@@ -210,8 +210,70 @@ class OrderSuccessView(LoginRequiredMixin, View):
 class UserOrderInfoView(LoginRequiredMixin, View):
     """我的订单"""
 
+    # def get(self, request, page_num):
+    #     """提供我的订单页面"""
+    #     user = request.user
+    #     # 查询订单
+    #     orders = OrderInfo.objects.filter(user=user).order_by("-create_time")
+    #     # 遍历所有订单
+    #     for order in orders:
+    #         # 绑定订单状态
+    #         order.status_name = OrderInfo.ORDER_STATUS_CHOICES[order.status-1][1]
+    #         # 绑定支付方式
+    #         order.pay_method_name = OrderInfo.PAY_METHOD_CHOICES[order.pay_method-1][1]
+    #         order.sku_list = []
+    #
+    #         from datetime import timedelta
+    #         order.order_expire_time = str(order.create_time + timedelta(settings.ORDER_EXPIRE_DAY)).split("+")[0]
+    #         # 查询订单商品
+    #         order_goods = order.skus.all()
+    #         # 遍历订单商品
+    #         for order_good in order_goods:
+    #             sku = order_good.sku
+    #             sku.count = order_good.count
+    #             sku.amount = sku.price * sku.count
+    #             order.sku_list.append(sku)
+    #     # 分页
+    #     page_num = int(page_num)
+    #     try:
+    #         paginator = Paginator(orders, 2)
+    #         page_orders = paginator.page(page_num)
+    #         total_page = paginator.num_pages
+    #     except EmptyPage:
+    #         return http.HttpResponseForbidden('订单不存在')
+    #     # 将当前页里的每个对象包成一个列表
+    #     page_dict = dict()
+    #     for page_order in page_orders:
+    #         page_dict[page_orders.index(page_order)] = page_order
+    #     print(page_dict)
+    #     context = {
+    #         "page_orders": page_orders,
+    #         'total_page': total_page,
+    #         'page_num': page_num,
+    #         # 'order_count': paginator.count,  # 分页后的总数,一共有多少订单
+    #         'page_dict': page_dict,
+    #     }
+    #     return render(request, "user_center_order.html", context)
     def get(self, request, page_num):
-        """提供我的订单页面"""
+        """先返回订单页面和分页项"""
+        user = request.user
+        # 查询订单
+        orders = OrderInfo.objects.filter(user=user).order_by("-create_time")
+        # 分页
+        page_num = int(page_num)
+        try:
+            paginator = Paginator(orders, 2)
+            total_page = paginator.num_pages
+        except EmptyPage:
+            return http.HttpResponseForbidden('订单不存在')
+        context = {
+            'total_page': total_page,
+            'page_num': page_num
+        }
+        return render(request, "user_center_order.html", context)
+
+    def post(self, request, page_num):
+        """ajax发来请求返回分页对象让vue渲染模板"""
         user = request.user
         # 查询订单
         orders = OrderInfo.objects.filter(user=user).order_by("-create_time")
@@ -223,8 +285,10 @@ class UserOrderInfoView(LoginRequiredMixin, View):
             order.pay_method_name = OrderInfo.PAY_METHOD_CHOICES[order.pay_method-1][1]
             order.sku_list = []
 
+
             from datetime import timedelta
-            order.order_expire_time = str(order.create_time + timedelta(settings.ORDER_EXPIRE_DAY)).split("+")[0]
+            order.order_expire_time = str(order.create_time + timedelta(days=settings.ORDER_EXPIRE_DAY,hours=settings.ORDER_EXPIRE_HOUR,minutes=settings.ORDER_EXPIRE_MINUTE,seconds=settings.ORDER_EXPIRE_SECOND)).split("+")[0]
+            print(order.order_expire_time)
             # 查询订单商品
             order_goods = order.skus.all()
             # 遍历订单商品
@@ -232,28 +296,39 @@ class UserOrderInfoView(LoginRequiredMixin, View):
                 sku = order_good.sku
                 sku.count = order_good.count
                 sku.amount = sku.price * sku.count
-                order.sku_list.append(sku)
+                order.sku_list.append({
+                    "count": sku.count,
+                    "amount": sku.amount,
+                    "name": sku.name,
+                    "image_url": sku.default_image.url,
+                    "price": sku.price
+                })
+                print(sku.default_image.url)
         # 分页
         page_num = int(page_num)
         try:
             paginator = Paginator(orders, 2)
             page_orders = paginator.page(page_num)
-            total_page = paginator.num_pages
         except EmptyPage:
             return http.HttpResponseForbidden('订单不存在')
-        # 将当前页里的每个对象包成一个列表
-        page_dict = dict()
+        l = []
         for page_order in page_orders:
-            page_dict[page_orders.index(page_order)] = page_order
-        print(page_dict)
+            l.append({
+                "order_expire_time": page_order.order_expire_time,
+                "create_time": page_order.create_time.strftime('%Y-%m-%d %H:%M:%S'),
+                "order_id": page_order.order_id,
+                "sku_list": page_order.sku_list,
+                "total_amount": page_order.total_amount,
+                "pay_method_name": page_order.pay_method_name,
+                "freight": page_order.freight,
+                "status": page_order.status,
+                "status_name": page_order.status_name
+            })
         context = {
-            "page_orders": page_orders,
-            'total_page': total_page,
-            'page_num': page_num,
-            # 'order_count': paginator.count,  # 分页后的总数,一共有多少订单
-            'page_dict': page_dict,
+            "page_orders": l
         }
-        return render(request, "user_center_order.html", context)
+
+        return http.JsonResponse(context)
 
 
 class OrderCommentView(LoginRequiredMixin, View):
@@ -389,6 +464,7 @@ class CancelOrderView(LoginRequiredMixin, View):
         context = {
             "code":"0",
             "errmsg": "OK",
+            "order_id": order.order_id
         }
         return http.JsonResponse(context)
 
