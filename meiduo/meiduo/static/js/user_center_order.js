@@ -13,7 +13,6 @@ var vm = new Vue({
         page_num: page_num, //当前页码
         page_orders: [],  //页码中的订单对象集
 
-        errmsg: "取消订单失败",
 
 
     },
@@ -48,7 +47,8 @@ var vm = new Vue({
 
             for (let i = 0; i < this.page_orders.length; i++) {
                 // 只要不是待支付状态,直接跳过本次循环
-                if (this.page_orders[i].status != 1){continue}
+                if (this.page_orders[i].status != 1){continue};
+                if (this.page_orders[i].flag){continue};
 
                 // 待支付状态设置有效期
                 var date = new Date();
@@ -125,11 +125,20 @@ var vm = new Vue({
                             }
                         });
                     } else {
-                        alert(this.errmsg+"a");
+                        alert("error");
                     }
                 })
                 .catch(error => {
-                    alert(this.errmsg+"b");
+                    let order_id = error.response.data.order_id;
+                    let errmsg = error.response.data.errmsg;
+                    this.page_orders.forEach((value,index,att)=> {
+                        if (value.order_id == order_id){
+                            Vue.set(value, 'flag', true);
+                            // 弹出一次失败并不再让定时期循环此订单
+                            Vue.set(value, 'realtime', errmsg);
+                            alert(errmsg);
+                        };
+                    });
                 })
         },
     }

@@ -455,9 +455,8 @@ class CancelOrderView(LoginRequiredMixin, View):
                     sku.spu.sales -= 1
                     sku.spu.save()
             except Exception as e:
-                print(e)
                 transaction.savepoint_rollback(the_save_id)
-                return http.JsonResponse({"errmsg": "取消订单失败"}, status=400)
+                return http.JsonResponse({"errmsg": "取消订单失败", "order_id":order_id}, status=400)
             # 取消成功
             transaction.savepoint_commit(the_save_id)
 
