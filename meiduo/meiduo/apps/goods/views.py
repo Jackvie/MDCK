@@ -36,8 +36,20 @@ class ListView(View):
         else:
             sort_field = "-create_time"
 
-        # 查询3级对象下的所有sku商品
-        sku_qs = category.sku_set.filter(is_launched=True).order_by(sort_field)
+        maxprice = request.GET.get("maxprice")
+        minprice = request.GET.get("minprice")
+        try:
+            maxprice = int(maxprice)
+            minprice = int(minprice)
+            if maxprice <= minprice:
+                maxprice = 99999
+            if minprice <0:
+                minprice = 0
+            sku_qs = category.sku_set.filter(is_launched=True, price__gte=minprice, price__lte=maxprice).order_by(sort_field)
+        except Exception as e:
+            print(e)
+            # 查询3级对象下的所有sku商品
+            sku_qs = category.sku_set.filter(is_launched=True).order_by(sort_field)
 
         # 创建分页对象
         paginator = Paginator(sku_qs, 5)  # 分5页
@@ -53,7 +65,9 @@ class ListView(View):
             'sort': sort,
             'total_page': total_page,
             'page_skus': page_skus,
-            'page_num': page_num
+            'page_num': page_num,
+            'maxprice': maxprice if maxprice else "",
+            'minprice': minprice if minprice else ""
         }
         return render(request, 'list.html', context)
 

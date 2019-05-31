@@ -134,6 +134,13 @@
                 <a href="/list/{{ category.id }}/1/" {% if sort=='default' %} class="active"{% endif %}>默认</a>
                 <a href="/list/{{ category.id }}/1/?sort=price" {% if sort=='price' %} class="active"{% endif %}>价格</a>
                 <a href="/list/{{ category.id }}/1/?sort=hot" {% if sort=='hot' %} class="active"{% endif %}>人气</a>
+                <div @mouseenter="the_enter" @mouseleave="the_leave" style="display: inline-block; margin-left: 20px; padding-top: 5px;">
+                    <input type="text" placeholder="￥" v-model="minprice" name="min_price" style="color: red;" size="4" ><strong>－</strong>
+                    <input type="text" placeholder="￥" v-model="maxprice" name="max_price" style="color: red;" size="4">
+                    &nbsp;&nbsp;
+                    <input @click="submit_price" type="button" v-show="submit_flag" value="确定">
+                    <input @click="clear_input" type="button" v-show="submit_flag" value="清空">
+                </div>
             </div>
 
             <ul class="goods_type_list clearfix">
@@ -162,6 +169,8 @@
 
 {% block bottom %}
 <script type="text/javascript">
+    var maxprice = "{{ maxprice }}";
+    var minprice = "{{ minprice }}";
     let category_id ={{ category.id }};
 </script>
 <script type="text/javascript" src="/static/js/list.js"></script>
@@ -172,7 +181,8 @@
             currentPage: {{ page_num }},
             totalPage: {{ total_page }},
             callback: function (current) {
-                location.href = '/list/{{ category.id }}/' + current + '/?sort={{ sort }}';
+                {#location.href = '/list/{{ category.id }}/' + current + '/?sort={{ sort }}';#}
+                location.href = '/list/{{ category.id }}/' + current + '/?sort={{ sort }}&maxprice={{ maxprice }}&minprice={{ minprice }}';
             }
         })
     });

@@ -13,6 +13,11 @@ var vm = new Vue({
         sina_img_url: '',
         profile_url: '',
         sina_before: 'http://www.weibo.com/',
+
+        submit_flag: false,
+        maxprice: maxprice,
+        minprice: minprice,
+        the_url: "",
     },
     mounted(){
         // 获取购物车数据
@@ -25,6 +30,10 @@ var vm = new Vue({
     },
     created: function(){
         ask_sina_msg(this);
+    },
+    updated(){
+        if(isNaN(this.maxprice)){this.maxprice=99999};
+        if(isNaN(this.minprice)){this.minprice=0};
     },
     methods: {
         // 获取购物车数据
@@ -62,6 +71,25 @@ var vm = new Vue({
                 .catch(error => {
                     console.log(error.response);
                 })
+        },
+        the_enter(){
+            // 鼠标移入价格区间
+            this.submit_flag = true;
+        },
+        the_leave(){
+            this.submit_flag = false;
+        },
+        submit_price(){
+            // 输入价格区间并提交
+            // if (this.maxprice.parseInt()){return}
+            var url = this.host+"/list/"+this.category_id+"/1/?maxprice="+this.maxprice+"&minprice="+this.minprice;
+            location.href = url;
+        },
+        clear_input(){
+            // 清空输入框
+            this.maxprice = "";
+            this.minprice = "";
+
         }
     }
 });
