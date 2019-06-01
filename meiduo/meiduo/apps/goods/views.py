@@ -1,3 +1,4 @@
+from django.db.models import Max
 from django.shortcuts import render
 from django.views import View
 from django import http
@@ -5,7 +6,7 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 
 from contents.utils import get_categories
-from goods.models import GoodsCategory, SKU, GoodsVisitCount
+from goods.models import GoodsCategory, SKU, GoodsVisitCount, SPU
 from goods.utils import get_breadcrumb
 from meiduo.utils.response_code import RETCODE
 from orders.models import OrderGoods,OrderInfo
@@ -56,7 +57,15 @@ class ListView(View):
         page_skus = paginator.page(page_num)  # 第几页对象
         total_page = paginator.num_pages  # 总页数
 
-
+        # 获取所以spu查询集
+        spu_qs = SPU.objects.all()
+        skus = SKU.objects.filter(category=category)  # 所属三级类别下的sku查询集
+        price_max = int(skus.aggregate(Max("price")).get('price__max')) # {'price__max':3}
+        allprices = [{"min":0,"max":price_max//5},
+                  {"min":price_max//5,"max":price_max//4},
+                  {"min":price_max//4,"max":price_max//3},
+                  {"min":price_max//3,"max":price_max//2},
+                  {"min":price_max//2,"max":99999}]
         # 拼接响应数据
         context = {
             'categories': categories,
@@ -67,7 +76,9 @@ class ListView(View):
             'page_skus': page_skus,
             'page_num': page_num,
             'maxprice': maxprice if maxprice else "",
-            'minprice': minprice if minprice else ""
+            'minprice': minprice if minprice else "",
+            "spu_qs": spu_qs,
+            "allprices": allprices
         }
         return render(request, 'list.html', context)
 

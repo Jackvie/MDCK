@@ -107,6 +107,43 @@
         </div>
     </div>
 
+
+
+     <div class="navbar_con" style="border-bottom: 1px solid #eee;background-color: #fff;">
+        <div class="navbar">
+            <div class="sub_menu_con fl" >
+                <h1 class="fl" style="background-color: #fff;">品牌</h1>
+            </div>
+
+
+            <ul class="navlist fl">
+                {% for spu_img in spu_qs %}
+                    <li><a href=""><img style="display: block;" src="{{ spu_img.brand.logo.url }}" alt="图片" height="30px"></a></li>
+                    <li class="interval" style="margin: 0 100px">|</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="navbar_con" style="border-bottom: 1px solid #eee;background-color: #fff;">
+        <div class="navbar">
+            <div class="sub_menu_con fl">
+                <h1 style="background-color: #fff;" class="fl">价格</h1>
+            </div>
+
+
+            <ul class="navlist fl">
+                {% for prices in allprices %}
+                    <li>
+                        <a href="/list/{{ category.id }}/1/?maxprice={{ prices.min }}&minprice={{ prices.max }}">{{ prices.min }}-{{ prices.max }}</a>
+                    </li>
+                    <li class="interval" style="margin: 0 40px">|</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+
     <div class="breadcrumb">
         <a href="{{ breadcrumb.cat1.url }}">{{ breadcrumb.cat1.name }}</a>
         <span>></span>
