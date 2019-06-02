@@ -61,11 +61,11 @@ class ListView(View):
         spu_qs = SPU.objects.all()
         skus = SKU.objects.filter(category=category)  # 所属三级类别下的sku查询集
         price_max = int(skus.aggregate(Max("price")).get('price__max')) # {'price__max':3}
-        allprices = [{"min":0,"max":price_max//5},
-                  {"min":price_max//5,"max":price_max//4},
-                  {"min":price_max//4,"max":price_max//3},
-                  {"min":price_max//3,"max":price_max//2},
-                  {"min":price_max//2,"max":99999}]
+        allprices = [{"min":0,"max":int(price_max//9*0.01)*100-1},
+                  {"min":int(price_max//9*0.01)*100,"max":int(price_max//9*0.03)*100-1},
+                  {"min":int(price_max//9*0.03)*100,"max":int(price_max//9*0.06)*100-1},
+                  {"min":int(price_max//9*0.06)*100,"max":int(price_max//9*0.08)*100-1},
+                  {"min":int(price_max//9*0.08)*100,"max":99999}]
         # 拼接响应数据
         context = {
             'categories': categories,

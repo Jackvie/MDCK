@@ -134,7 +134,7 @@
             <ul class="navlist fl">
                 {% for prices in allprices %}
                     <li>
-                        <a href="/list/{{ category.id }}/1/?maxprice={{ prices.min }}&minprice={{ prices.max }}">{{ prices.min }}-{{ prices.max }}</a>
+                        <a href="/list/{{ category.id }}/1/?maxprice={{ prices.max }}&minprice={{ prices.min }}">{{ prices.min }}-{{ prices.max }}</a>
                     </li>
                     <li class="interval" style="margin: 0 40px">|</li>
                 {% endfor %}
