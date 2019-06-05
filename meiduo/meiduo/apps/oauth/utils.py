@@ -78,10 +78,11 @@ class SinaLoginTool(object):
         response = requests.get(url, params=oauth_dict)
         result = response.content.decode()
         result = json.loads(result)
+        if result.get("error_code") == 21321:
+            print(result)
         sina_img_url = result.get("profile_image_url")
         sina_user_name = result.get("screen_name")
         profile_url = result.get("profile_url")
-        print(sina_img_url,sina_user_name,profile_url)
         context = {"sina_img_url":sina_img_url,"sina_user_name":sina_user_name,"profile_url":profile_url}
         return context
 

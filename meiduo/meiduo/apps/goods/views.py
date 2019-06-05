@@ -48,14 +48,18 @@ class ListView(View):
                 minprice = 0
             sku_qs = category.sku_set.filter(is_launched=True, price__gte=minprice, price__lte=maxprice).order_by(sort_field)
         except Exception as e:
-            print(e)
+            print(e,"-------")
             # 查询3级对象下的所有sku商品
             sku_qs = category.sku_set.filter(is_launched=True).order_by(sort_field)
 
         # 创建分页对象
-        paginator = Paginator(sku_qs, 5)  # 分5页
-        page_skus = paginator.page(page_num)  # 第几页对象
-        total_page = paginator.num_pages  # 总页数
+        try:
+            paginator = Paginator(sku_qs, 5)  # 每页5条
+            page_skus = paginator.page(page_num)  # 第几页对象
+            total_page = paginator.num_pages  # 总页数
+        except Exception as e:
+            print(e, "+++++")
+            raise http.Http404("你要查找的页数不存在")
 
         # 获取所以spu查询集
         spu_qs = SPU.objects.all()
