@@ -91,8 +91,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
         'HOST': '127.0.0.1',  # 数据库主机
         'PORT': 3306,  # 数据库端口
-        'USER': 'itheima',  # 数据库用户名
-        'PASSWORD': '123456',  # 数据库用户密码
+        'USER': 'root',  # 数据库用户名
+        'PASSWORD': 'mysql',  # 数据库用户密码
         'NAME': 'meiduo'  # 数据库名字
     },
     # 'slave': {  # 读（从机）
@@ -104,6 +104,8 @@ DATABASES = {
     #     'NAME': 'meiduo'
     # },
 }
+# DATABASE_ROUTERS = ['meiduo.utils.db_router.MasterSlaveDBRouter']
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -278,7 +280,7 @@ ALIPAY_APPID = '2016092900622911'
 ALIPAY_DEBUG = True  # 表示是沙箱环境还是真实支付环境
 ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 # ALIPAY_RETURN_URL = 'http://www.meiduo.site:8000/payment/status/'
-ALIPAY_RETURN_URL = 'http://www.meiduo.site/payment/status/' # （生产环境）
+ALIPAY_RETURN_URL = 'http://www.meiduo.site/payment/status/' # （生产环境回调地址）
 
 
 CRONJOBS = [
@@ -289,15 +291,17 @@ CRONJOBS = [
 
 CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
 
-# DATABASE_ROUTERS = ['meiduo.utils.db_router.MasterSlaveDBRouter']
 
 # 配置收集静态文件存放的目录
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
-# 微博参数
+# 微博参数 生产环境 需在open.weibo.com修改return_url为一致80
 APP_KEY = '1473977117'
 APP_SECRET = '1faff8b1ff26a8b49b5ea84f22e82706'
 APP_RETURN_URL = 'http://www.meiduo.site:80/sina_callback'
 
 # 设置订单有效期
-ORDER_EXPIRE_DAY = 2
+ORDER_EXPIRE_DAY = 0
+ORDER_EXPIRE_HOUR = 0+8  # 解决时期问题 后端时间比前端时间少8个小时
+ORDER_EXPIRE_MINUTE = 1
+ORDER_EXPIRE_SECOND = 0

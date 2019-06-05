@@ -106,6 +106,7 @@ DATABASES = {
     #     'NAME': 'meiduo'
     # },
 }
+# DATABASE_ROUTERS = ['meiduo.utils.db_router.MasterSlaveDBRouter']
 
 
 # Password validation
@@ -278,7 +279,7 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 ALIPAY_APPID = '2016092900622911'
 ALIPAY_DEBUG = True  # 表示是沙箱环境还是真实支付环境
 ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
-ALIPAY_RETURN_URL = 'http://www.meiduo.site:8000/payment/status/'
+ALIPAY_RETURN_URL = 'http://www.meiduo.site:8000/payment/status/'  # 开发环境回调地址
 
 
 CRONJOBS = [
@@ -288,12 +289,12 @@ CRONJOBS = [
 
 CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
 
-# DATABASE_ROUTERS = ['meiduo.utils.db_router.MasterSlaveDBRouter']
+
 
 # 配置收集静态文件存放的目录
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 
-# 微博参数
+# 微博开发环境 需在open.weibo.com修改return_url为一致8000
 APP_KEY = '1473977117'
 APP_SECRET = '1faff8b1ff26a8b49b5ea84f22e82706'
 APP_RETURN_URL = 'http://www.meiduo.site:8000/sina_callback'
