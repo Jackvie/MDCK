@@ -12,9 +12,7 @@ var vm = new Vue({
 
         page_num: page_num, //当前页码
         page_orders: [],  //页码中的订单对象集
-
-
-
+        heimaogif: "/static/images/heimao.gif",
     },
     created(){
 
@@ -23,6 +21,7 @@ var vm = new Vue({
     },
     mounted(){
         this.username = getCookie('username');
+        setInterval(this.heimao, 10000);
 
     },
     updated(){
@@ -31,6 +30,9 @@ var vm = new Vue({
 
 
     methods: {
+        heimao(){
+            this.heimaogif += "?1"
+        },
         for_orders(){
 
             axios.post(this.host+"/orders/info/"+this.page_num+"/")
