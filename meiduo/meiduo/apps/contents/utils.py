@@ -30,3 +30,24 @@ def get_categories():
             categories[group_id]["sub_cats"].append(cat2)
 
     return categories
+
+
+from datetime import datetime,timedelta
+import time
+
+def spike_expire_time(year=2000,mouth=1,day=1, hour=1, minute=1,second=1):
+    """返回秒杀到截止时间的秒数"""
+    # 获取当前时间
+    times=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # 转为时间数组
+    timeArray = time.strptime(times, "%Y-%m-%d %H:%M:%S")
+    # 转为时间戳
+    timeStamp1 = int(time.mktime(timeArray))
+    # 获取秒杀结束时间
+    times = datetime(year,mouth,day,hour,minute,second).strftime('%Y-%m-%d %H:%M:%S')
+    timeArray = time.strptime(times, "%Y-%m-%d %H:%M:%S")
+    timeStamp2 = int(time.mktime(timeArray))
+    end = timeStamp2-timeStamp1
+    if int(end) < 0:
+        return
+    return end

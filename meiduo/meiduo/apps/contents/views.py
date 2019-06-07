@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from django.views import View
+from datetime import time
+from django.conf import settings
 
-from contents.utils import get_categories
+from contents.utils import get_categories, spike_expire_time
 from contents.models import ContentCategory
+from goods.models import SKU
 # Create your views here.
 
 class IndexView(View):
@@ -25,3 +28,22 @@ class IndexView(View):
             'contents': contents,
         }
         return render(request, 'index.html', context)
+
+
+class SpikeView(View):
+    """秒杀"""
+    def get(self,request):
+        skus = SKU.objects.filter(id__lte=8)
+        spike_end = spike_expire_time(*settings.SPIKE_LIST)
+        # spike_end = spike_expire_time(2019,6,8,0,0,0)
+
+        # 已售=销量/(销量+库存) sku.saled_rate
+        for sku in skus:
+            saled_rate = int((sku.sales/(sku.stock+sku.sales))*100)
+            if saled_rate == 100:
+                sku.saled_rate = "已售完"
+            else:
+                sku.saled_rate = "已售出:{}%".format(saled_rate)
+
+        context = {"skus": skus, "spike_end":int(spike_end)}
+        return render(request, "spike.html", context)

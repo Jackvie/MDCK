@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="search_bar clearfix">
+        <a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
+        <div class="search_wrap fl">
+            <form method="get" action="/search/" class="search_con">
+                <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+                <input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
+            <ul class="search_suggest fl">
+                <li><a href="#">索尼微单</a></li>
+                <li><a href="#">优惠15元</a></li>
+                <li><a href="#">美妆个护</a></li>
+                <li><a href="#">买2免1</a></li>
+            </ul>
+        </div>
+
+
+    </div>
+
+    <div class="list_model" style="width: 990px;">
+        <div class="list_title clearfix" style="background-color: #f7d5d5;">
+            <h3 class="fl" id="model01"><i style="margin-bottom: -10px; color: red; font-size: 30px;">美多秒杀&nbsp;&nbsp;&nbsp;</i><i>倒计时：</i><b style="color: #3eb8e9">[[ spike_time ]]</b></h3>
+        </div>
+        <div class="goods_con clearfix">
+            <div class="goods_list_con">
+                <ul class="goods_list fl">
+                    {% for sku in skus %}
+                        <li style="padding: 5px;">
+                            <a href="/detail/{{ sku.id }}.html" class="goods_pic"><img src="{{ sku.default_image.url }}"></a>
+                            <h4><a href="#" title="{{ sku.name }}">{{ sku.name }}</a></h4>
+                            <div class="price">{{ sku.price }}<span style="text-decoration: line-through;float: right; font-size:12px;color:#999;">￥{{ sku.price + 500 }}</span></div>
+                            <div style="position:relative;">
+                                <span style="position: absolute; left: 50px;">&nbsp;&nbsp;&nbsp;{{ sku.saled_rate }}</span><span>销量:{{ sku.sales }}</span>
+                                {% if sku.saled_rate == '已售完' %}
+                                <a href="javascript::" class="add_cart" style="position:absolute; right:0px; background: #f4f4f4; color:#000;" >到货通知</a>
+                                {% else %}
+                                <a @click="add_cart({{ sku.id }})" href="javascript::" class="add_cart" style="position:absolute; right:0px; background: #c40000; color:#fff;" >立即抢购</a>
+                                {% endif %}
+                            </div>
+
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block bottom %}
+    <script>
+        var spike_end = '{{ spike_end }}';
+    </script>
+    <script src="/static/js/spike.js"></script>
+{% endblock %}

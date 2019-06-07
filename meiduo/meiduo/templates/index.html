@@ -49,7 +49,12 @@
     <div class="pos_center_con clearfix">
         <ul class="slide">
             {% for content in contents.index_lbt %}
+                {% if loop.index != 5 %}
                 <li><a href="{{ content.url }}"><img src="{{ content.image.url }}" alt="{{ content.title }}"></a></li>
+                {% else %}
+                <li><a href="{{ content.url }}"><img height="300px" width="1920px" src="{{ content.image.url }}" alt="{{ content.title }}"></a></li>
+                {% endif %}
+
             {% endfor %}
         </ul>
         <div class="prev"></div>
