@@ -1,8 +1,11 @@
 from django.db import models
 
+from goods.models import SKU
 from meiduo.utils.models import BaseModel
 
 # Create your models here.
+from users.models import User
+
 
 class ContentCategory(BaseModel):
     """广告内容类别"""
@@ -35,3 +38,13 @@ class Content(BaseModel):
 
     def __str__(self):
         return self.category.name + ': ' + self.title
+
+
+# class DiscountNoticeModel(BaseModel):
+#     """降价通知模型类"""
+#     sku = models.ForeignKey(SKU,on_delete=models.CASCADE, verbose_name="商品")
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="用户")
+#     class Meta:
+#         db_table = "tb_discount_notice"
+#         verbose_name = "降价通知"
+#         verbose_name_plural = verbose_name

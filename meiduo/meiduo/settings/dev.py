@@ -25,7 +25,7 @@ SECRET_KEY = 'o=3(ym_w*v6wdfn8pw6(ssjk^o#0&t#rx%r84tdqv)mqx#a#a$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["www.meiduo.site"]
+ALLOWED_HOSTS = ["www.meiduo.site",'127.0.0.1']
 
 
 # Application definition
@@ -78,6 +78,19 @@ TEMPLATES = [
             ],
             # 补充Jinja2模板引擎环境
             'environment': 'meiduo.utils.jinja2_env.jinja2_environment', 
+        },
+    },
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
         },
     },
 ]
@@ -306,4 +319,4 @@ ORDER_EXPIRE_MINUTE = 1
 ORDER_EXPIRE_SECOND = 0
 
 # 秒杀截止时间
-SPIKE_LIST = [2019,6,8,0,0,0]
+SPIKE_LIST = [2019,6,10,0,0,0]

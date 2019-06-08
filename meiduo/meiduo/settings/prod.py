@@ -79,6 +79,19 @@ TEMPLATES = [
             'environment': 'meiduo.utils.jinja2_env.jinja2_environment',
         },
     },
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = 'meiduo.wsgi.application'
@@ -307,4 +320,4 @@ ORDER_EXPIRE_MINUTE = 1
 ORDER_EXPIRE_SECOND = 0
 
 # 秒杀截止时间
-SPIKE_LIST = [2019,10,10,9,10,10]
+SPIKE_LIST = [2019,6,10,0,10,10]

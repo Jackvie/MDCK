@@ -75,7 +75,9 @@ def generate_static_sku_detail_html(sku_id):
 
     template = loader.get_template('detail.html')
     html_text = template.render(context)
-    file_path = os.path.join(settings.STATICFILES_DIRS[0], 'detail/'+str(sku_id)+'.html')
+    # 原来是生成详情静态再手动收集现在直接生成至项目下的static/detail/下
+    # file_path = os.path.join(settings.STATICFILES_DIRS[0], 'detail/'+str(sku_id)+'.html')
+    file_path = os.path.join('/home/python/Desktop/MDCK/meiduo/static/detail/', str(sku_id)+'.html')
     with open(file_path, 'w') as f:
         f.write(html_text)
 
